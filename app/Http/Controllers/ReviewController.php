@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Model\Review;
+use App\Models\Model\Products;
 use Illuminate\Http\Request;
+use App\Http\Resources\Product\ProductResource;
 
 class ReviewController extends Controller
 {
@@ -14,7 +16,7 @@ class ReviewController extends Controller
      */
     public function index()
     {
-        //
+        return  new ProductResource(Revies::findOrFail($this->id));
     }
 
     /**
