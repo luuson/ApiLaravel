@@ -3,17 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Model\Products;
+use App\Http\Requests\ProductRequest;
 use App\Http\Resources\Product\ProductResource;
 use App\Http\Resources\Product\ProductCollection;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Routing\ResponseFactory;
+
 
 class ProductsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+   public function __construct()
+   {
+       $this->middleware('auth:api')->except('index','show');
+
+   }
     public function index()
     {
         return   ProductCollection::collection(Products::paginate());
@@ -35,9 +39,25 @@ class ProductsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ProductRequest $request)
+
+
     {
-        //
+        $product = new Products;
+        $product->name = $request->name;
+        $product->detail = $request->description;
+        $product->price = $request->price;
+        $product->stock = $request->stock;
+        $product->discount = $request->discount;
+        $product->save();
+
+        return response([
+            'data'=> new ProductResource($product)
+        ],201);
+
+
+
+        return $request->all();
     }
 
     /**
@@ -59,7 +79,7 @@ class ProductsController extends Controller
      */
     public function edit(Products $products)
     {
-        //
+
     }
 
     /**
@@ -69,9 +89,38 @@ class ProductsController extends Controller
      * @param  \App\Models\Model\Products  $products
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Products $products)
+    public function update(Request $request,  $products)
+
+
     {
-        //
+
+        $product = Products::findOrFail($products);
+
+         $product->name= $request->name;
+
+         $product->detail= $request->description;
+
+         $product->price= $request->price;
+
+         $product->stock= $request->stock;
+
+         $product->discount= $request->discount;
+
+         $product->save();
+
+
+
+
+         $product->update($request->all());
+
+         return response([
+
+            'data'=> new ProductResource($product)
+
+        ],201);
+
+        return $request->all();
+
     }
 
     /**
@@ -80,8 +129,10 @@ class ProductsController extends Controller
      * @param  \App\Models\Model\Products  $products
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Products $products)
+    public function destroy( $products)
     {
-        //
+        $product = Products::findOrFail($products)->delete();
+
+        return response(null,204);
     }
 }
